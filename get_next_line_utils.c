@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/21 07:26:11 by blamotte          #+#    #+#             */
+/*   Updated: 2025/11/21 22:47:28 by blamotte         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 t_list	*ft_lstnewnode(int fd)
@@ -11,7 +23,7 @@ t_list	*ft_lstnewnode(int fd)
 	new_content->status = 1;
 	nb_bytes = read(fd, new_content->content, BUFFER_SIZE);
 	if (nb_bytes < 0)
-		return (NULL);
+		return (free(new_content), NULL);
 	if (nb_bytes == 0)
 		new_content->status = 0;
 	new_content->content[nb_bytes] = '\0';
@@ -40,10 +52,10 @@ int	end_of_line(t_list *current_buffer)
 	while (current_buffer->content[i])
 	{
 		if (current_buffer->content[i] == '\n')
-			return (0);
+			return (1);
 		i++;
 	}
-	return (1);
+	return (0);
 }
 
 void	*ft_lstclear_all(t_global *stack)

@@ -1,13 +1,27 @@
-#ifndef get_next_line_h
-# define get_next_line_h
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/21 07:36:10 by blamotte          #+#    #+#             */
+/*   Updated: 2025/11/21 22:01:35 by blamotte         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef GET_NEXT_LINE_H
+# define GET_NEXT_LINE_H
+
+# include <fcntl.h>
 # include <stddef.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <unistd.h>
-# include <fcntl.h>
+
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 3
+#  define BUFFER_SIZE 10
 # endif
 
 typedef struct s_list
@@ -29,5 +43,9 @@ void				*ft_lstclear_all(t_global *stack);
 t_global			*ft_lstnew(int fd);
 t_list				*ft_lstnewnode(int fd);
 int					ft_lstsize(t_list *lst);
+int					put_in_stack(int fd, t_list *actual_buffer, int isfirst);
+int					put_in_out(t_global *actual_stack, char **out);
+void				clean_stack(t_global *stack);
+char				*get_next_line(int fd);
 
 #endif

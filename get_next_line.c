@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/21 07:25:48 by blamotte          #+#    #+#             */
+/*   Updated: 2025/11/21 22:46:14 by blamotte         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 int	put_in_stack(int fd, t_list *actual_buffer, int isfirst)
@@ -8,13 +20,13 @@ int	put_in_stack(int fd, t_list *actual_buffer, int isfirst)
 		return (0);
 	if (!actual_buffer->status)
 		return (1);
-	if (isfirst && !end_of_line(actual_buffer))
+	if (isfirst && end_of_line(actual_buffer))
 		return (1);
 	new_node = ft_lstnewnode(fd);
 	if (!new_node)
 		return (0);
 	actual_buffer->next = new_node;
-	if (end_of_line(new_node))
+	if (!end_of_line(new_node))
 		return (put_in_stack(fd, new_node, 0));
 	return (1);
 }
@@ -33,12 +45,16 @@ int	put_in_out(t_global *actual_stack, char **out)
 	while (tmp)
 	{
 		i = 0;
-		while (tmp->content[i] && tmp->content[i - 1] != '\n')
+		while (tmp->content[i])
 		{
 			(*out)[j] = tmp->content[i];
-			i++;
 			j++;
+			if (tmp->content[i] == '\n')
+				break;
+			i++;
 		}
+		if (tmp->content[i] == '\n')
+			break ;
 		tmp = tmp->next;
 	}
 	(*out)[j] = '\0';
@@ -64,7 +80,7 @@ void	clean_stack(t_global *stack)
 			while (tmp->content[i])
 				tmp->content[j++] = tmp->content[i++];
 			tmp->content[j] = '\0';
-			return ;
+			break;
 		}
 		stack->liste = tmp->next;
 		free(tmp);
@@ -77,9 +93,9 @@ char	*get_next_line(int fd)
 	static t_global	*stack;
 	t_global		*current;
 	char			*out;
-
+	
 	current = stack;
-	if (fd < 0 || fd >= 1024 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 		return (NULL);
 	while (current && fd != current->fd_stack)
 		current = current->next;
@@ -89,37 +105,33 @@ char	*get_next_line(int fd)
 		if (!current)
 			return (NULL);
 		current->liste = ft_lstnewnode(fd);
-		if (!current->liste)
-			return (NULL);
+		if (!current->liste || !current->liste->status)
+			return (ft_lstclear_all(stack), free(current->liste), free(current), NULL);
 		current->next = stack;
 		stack = current;
 	}
 	if (!put_in_stack(fd, current->liste, 1) || !put_in_out(current, &out))
-		return (ft_lstclear_all(stack));
+		return (ft_lstclear_all(stack), NULL);
 	clean_stack(current);
+	if (!out[0])
+		return (free(out), NULL);
 	return (out);
 }
-int	main(void)
+/*
+int	main(int ac, char *av[])
 {
-	int fd1;
-	//int	fd2;
+	int	fd = open(av[1], O_RDONLY);
 	char *line;
-	int i;
 
-	fd1 = open("test.txt", O_RDONLY);
-	//fd2 = open("test1.txt", O_RDONLY);
-	//fd = 0;
-	i = 50;
-	while (i--)
-	{
-	//	if (i % 3 == 0)
-			line = get_next_line(fd1);
-	//	else
-	//		line = get_next_line(fd2);
-		if (line == NULL)
-			break ;
+	(void) ac;
+	line = get_next_line(fd);
+	while (line) {
 		printf("%s", line);
 		free(line);
+		line = get_next_line(fd);
 	}
+	free(line);
+	line = get_next_line(fd);
 	return (0);
 }
+*/
