@@ -1,6 +1,5 @@
 #include "get_next_line.h"
 
-
 int	put_in_stack(int fd, t_list *actual_buffer, int isfirst)
 {
 	t_list	*new_node;
@@ -75,12 +74,12 @@ void	clean_stack(t_global *stack)
 
 char	*get_next_line(int fd)
 {
-	static t_global *stack;
-	t_global *current;
-	char *out;
+	static t_global	*stack;
+	t_global		*current;
+	char			*out;
 
 	current = stack;
-	if (fd < 0 || fd >= 1024|| BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	if (fd < 0 || fd >= 1024 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 		return (NULL);
 	while (current && fd != current->fd_stack)
 		current = current->next;
@@ -102,15 +101,23 @@ char	*get_next_line(int fd)
 }
 int	main(void)
 {
-	int		fd;
-	char	*line;
+	int fd1;
+	//int	fd2;
+	char *line;
+	int i;
 
-	fd = open("test.txt", O_RDONLY);
-	while (1)
+	fd1 = open("test.txt", O_RDONLY);
+	//fd2 = open("test1.txt", O_RDONLY);
+	//fd = 0;
+	i = 50;
+	while (i--)
 	{
-		line = get_next_line(fd);
+	//	if (i % 3 == 0)
+			line = get_next_line(fd1);
+	//	else
+	//		line = get_next_line(fd2);
 		if (line == NULL)
-			break;
+			break ;
 		printf("%s", line);
 		free(line);
 	}
