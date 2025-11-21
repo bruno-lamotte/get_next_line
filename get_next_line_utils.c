@@ -28,6 +28,7 @@ t_global	*ft_lstnew(int fd)
 		return (NULL);
 	new_liste->fd_stack = fd;
 	new_liste->next = NULL;
+	new_liste->liste = NULL;
 	return (new_liste);
 }
 
@@ -38,7 +39,7 @@ int	end_of_line(t_list *current_buffer)
 	i = 0;
 	while (current_buffer->content[i])
 	{
-		if (current_buffer->content[i] == 10)
+		if (current_buffer->content[i] == '\n')
 			return (0);
 		i++;
 	}
