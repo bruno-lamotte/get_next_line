@@ -1,5 +1,6 @@
 #include "get_next_line.h"
 
+
 int	put_in_stack(int fd, t_list *actual_buffer)
 {
 	t_list	*new_node;
@@ -39,7 +40,7 @@ int	put_in_out(t_global *actual_stack, char **out)
 		i = 0;
 		while (tmp->content[i])
 		{
-			(*out)[j] = actual_stack->liste->content[i];
+			(*out)[j] = tmp->content[i];
 			i++;
 			j++;
 		}
@@ -83,7 +84,7 @@ char	*get_next_line(int fd)
 	char *out;
 
 	current = stack;
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	if (fd < 0 || fd >= 1024|| BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 		return (NULL);
 	while (current && fd != current->fd_stack)
 		current = current->next;
@@ -92,7 +93,7 @@ char	*get_next_line(int fd)
 		current = ft_lstnew(fd);
 		if (!current)
 			return (NULL);
-		current->liste = NULL;
+		current->liste = ft_lstnewnode(fd);
 		current->next = stack;
 		stack = current;
 	}
@@ -100,4 +101,20 @@ char	*get_next_line(int fd)
 		return (ft_lstclear_all(stack));
 	clean_stack(stack);
 	return (out);
+}
+int	main(void)
+{
+	int		fd;
+	char	*line;
+
+	fd = open("test.txt", O_RDONLY);
+	while (1)
+	{
+		line = get_next_line(fd);
+		if (line == NULL)
+			break;
+		printf("%s\n\n\n", line);
+		free(line);
+	}
+	return (0);
 }
