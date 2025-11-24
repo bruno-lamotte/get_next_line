@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 07:26:11 by blamotte          #+#    #+#             */
-/*   Updated: 2025/11/23 23:01:44 by blamotte         ###   ########.fr       */
+/*   Updated: 2025/11/24 00:54:40 by blamotte         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 t_list	*ft_lstnewnode(int fd)
 {
@@ -31,6 +31,19 @@ t_list	*ft_lstnewnode(int fd)
 	return (new_content);
 }
 
+t_global	*ft_lstnew(int fd)
+{
+	t_global	*new_liste;
+
+	new_liste = malloc(sizeof(t_global));
+	if (!new_liste)
+		return (NULL);
+	new_liste->fd_stack = fd;
+	new_liste->next = NULL;
+	new_liste->liste = NULL;
+	return (new_liste);
+}
+
 int	end_of_line(t_list *current_buffer)
 {
 	int	i;
@@ -47,15 +60,24 @@ int	end_of_line(t_list *current_buffer)
 	return (0);
 }
 
-void	*ft_clear(t_list *stack)
+void	*ft_clear(t_global *stack)
 {
+	t_global	*tmp_global;
+	t_list		*tmp_liste;
 	t_list		*next_liste;
 
-    while (stack)
+	while (stack)
 	{
-		next_liste = stack->next;
+		tmp_global = stack->next;
+		tmp_liste = stack->liste;
+		while (tmp_liste)
+		{
+			next_liste = tmp_liste->next;
+			free(tmp_liste);
+			tmp_liste = next_liste;
+		}
 		free(stack);
-		stack = next_liste;
+		stack = tmp_global;
 	}
 	return (NULL);
 }

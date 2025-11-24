@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/21 07:25:48 by blamotte          #+#    #+#             */
-/*   Updated: 2025/11/24 00:51:32 by blamotte         ###   ########.fr       */
+/*   Updated: 2025/11/24 00:54:06 by blamotte         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 int	put_in_stack(int fd, t_list *actual_buffer, int isfirst)
 {
@@ -28,22 +28,16 @@ int	put_in_stack(int fd, t_list *actual_buffer, int isfirst)
 	actual_buffer->next = new_node;
 	if (end_of_line(new_node))
 		return (1);
-if (!put_in_stack(fd, new_node, 0))
-{
-    ft_clear(new_node);
-    actual_buffer->next = NULL;
-    return 0;
-}
-return 1;
+	return (put_in_stack(fd, new_node, 0));
 }
 
-int	put_in_out(t_list *stack, char **out)
+int	put_in_out(t_global *actual_stack, char **out)
 {
 	int		i;
 	int		j;
 	t_list	*tmp;
 
-	tmp = stack;
+	tmp = actual_stack->liste;
 	*out = malloc(ft_lstsize(tmp) + 1);
 	if (!*out)
 		return (0);
@@ -65,14 +59,13 @@ int	put_in_out(t_list *stack, char **out)
 	return (1);
 }
 
-void	clean_stack(t_list **stack)
+void	clean_stack(t_global *stack)
 {
 	t_list	*tmp;
-	t_list	*next;
 	int		i;
 	int		j;
 
-	tmp = *stack;
+	tmp = stack->liste;
 	while (tmp)
 	{
 		i = 0;
@@ -85,34 +78,42 @@ void	clean_stack(t_list **stack)
 			while (tmp->content[i])
 				tmp->content[j++] = tmp->content[i++];
 			tmp->content[j] = '\0';
-			next = tmp->next;
-            tmp->next = NULL;
-            ft_clear(next);
 			return ;
 		}
-		*stack = tmp->next;
+		stack->liste = tmp->next;
 		free(tmp);
-		tmp = *stack;
+		tmp = stack->liste;
 	}
-	*stack = NULL;
+	stack->liste = NULL;
 }
 
 char	*get_next_line(int fd)
 {
-	static t_list	*stack;
+	static t_global	*stack;
+	t_global		*current;
 	char			*out;
 
+	current = stack;
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
 		return (NULL);
-    if (!stack)
-	    stack = ft_lstnewnode(fd);
-	if (!stack || !stack->status)
-			return (ft_clear(stack), stack = NULL, NULL);
-	if (!put_in_stack(fd, stack, 1) || !put_in_out(stack, &out))
+	while (current && fd != current->fd_stack)
+		current = current->next;
+	if (!current)
+	{
+		current = ft_lstnew(fd);
+		if (!current)
+			return (NULL);
+		current->liste = ft_lstnewnode(fd);
+		if (!current->liste || !current->liste->status)
+			return (ft_clear(stack), free(current->liste), free(current), NULL);
+		current->next = stack;
+		stack = current;
+	}
+	if (!put_in_stack(fd, current->liste, 1) || !put_in_out(current, &out))
 		return (ft_clear(stack), stack = NULL, NULL);
 	if (!out || !out[0])
-		return (free(out), ft_clear(stack), stack = NULL, NULL);
-	clean_stack(&stack);
+		return (free(out), NULL);
+	clean_stack(current);
 	return (out);
 }
 /*
