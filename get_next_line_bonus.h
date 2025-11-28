@@ -1,51 +1,29 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/21 07:36:10 by blamotte          #+#    #+#             */
-/*   Updated: 2025/11/24 00:56:31 by blamotte         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef GET_NEXT_LINE_BONUS_H
 # define GET_NEXT_LINE_BONUS_H
 
 # include <fcntl.h>
-# include <stddef.h>
 # include <stdio.h>
 # include <stdlib.h>
-# include <string.h>
 # include <unistd.h>
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 10
 # endif
 
-typedef struct s_list
-{
-	char			content[BUFFER_SIZE + 1];
-	int				status;
-	struct s_list	*next;
-}					t_list;
+# ifndef FD_MAX
+#  define FD_MAX 1024
+# endif
 
 typedef struct s_global
 {
-	t_list			*liste;
-	int				fd_stack;
+	char			content[BUFFER_SIZE];
+	ssize_t			siz;
 	struct s_global	*next;
 }					t_global;
 
-int					end_of_line(t_list *current_buffer);
-void				*ft_clear(t_global *stack);
-t_global			*ft_lstnew(int fd);
-t_list				*ft_lstnewnode(int fd);
-int					ft_lstsize(t_list *lst);
-int					put_in_stack(int fd, t_list *actual_buffer, int isfirst);
-int					put_in_out(t_global *actual_stack, char **out);
-void				clean_stack(t_global *stack);
 char				*get_next_line(int fd);
+void				ft_clear(t_global **stash);
+int					is_eol(t_global *list);
+int					line_size(t_global *lst);
 
 #endif

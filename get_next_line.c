@@ -1,126 +1,125 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/21 07:25:48 by blamotte          #+#    #+#             */
-/*   Updated: 2025/11/24 00:51:32 by blamotte         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "get_next_line.h"
 
-int	put_in_stack(int fd, t_list *actual_buffer, int isfirst)
+t_global	*add_node(t_global **stash, int fd)
 {
-	t_list	*new_node;
+	t_global	*new_node;
+	t_global	*tmp;
 
-	if (!actual_buffer)
-		return (0);
-	if (!actual_buffer->status)
-		return (1);
-	if (isfirst && end_of_line(actual_buffer))
-		return (1);
-	new_node = ft_lstnewnode(fd);
+	new_node = malloc(sizeof(t_global));
 	if (!new_node)
-		return (0);
-	actual_buffer->next = new_node;
-	if (end_of_line(new_node))
-		return (1);
-if (!put_in_stack(fd, new_node, 0))
-{
-    ft_clear(new_node);
-    actual_buffer->next = NULL;
-    return 0;
-}
-return 1;
+		return (NULL);
+	new_node->siz = read(fd, new_node->content, BUFFER_SIZE);
+	new_node->next = NULL;
+	if (new_node->siz <= 0)
+	{
+		if (new_node->siz < 0)
+			ft_clear(stash);
+		free(new_node);
+		return (NULL);
+	}
+	if (!*stash)
+		*stash = new_node;
+	else
+	{
+		tmp = *stash;
+		while (tmp->next)
+			tmp = tmp->next;
+		tmp->next = new_node;
+	}
+	return (new_node);
 }
 
-int	put_in_out(t_list *stack, char **out)
+char	*extract_line(t_global *stash)
 {
 	int		i;
 	int		j;
-	t_list	*tmp;
+	int		len;
+	char	*line;
 
-	tmp = stack;
-	*out = malloc(ft_lstsize(tmp) + 1);
-	if (!*out)
-		return (0);
+	len = line_size(stash);
+	line = malloc(sizeof(char) * (len + 1));
+	if (!line)
+		return (NULL);
 	j = 0;
-	while (tmp)
+	while (stash)
 	{
 		i = 0;
-		while (tmp->content[i])
+		while (i < stash->siz)
 		{
-			(*out)[j++] = tmp->content[i];
-			if (tmp->content[i++] == '\n')
+			line[j++] = stash->content[i];
+			if (stash->content[i++] == '\n')
 				break ;
 		}
-		if (tmp->content[i] == '\n')
+		if (j > 0 && line[j - 1] == '\n')
 			break ;
-		tmp = tmp->next;
+		stash = stash->next;
 	}
-	(*out)[j] = '\0';
-	return (1);
+	line[j] = '\0';
+	return (line);
 }
 
-void	clean_stack(t_list **stack)
+void	clean_stash(t_global **stash)
 {
-	t_list	*tmp;
-	t_list	*next;
-	int		i;
-	int		j;
+	t_global	*last;
+	t_global	*clean_node;
+	int			i;
+	int			j;
 
-	tmp = *stack;
-	while (tmp)
-	{
-		i = 0;
-		while (tmp->content[i] && tmp->content[i] != '\n')
-			i++;
-		if (tmp->content[i] == '\n')
-		{
-			i++;
-			j = 0;
-			while (tmp->content[i])
-				tmp->content[j++] = tmp->content[i++];
-			tmp->content[j] = '\0';
-			next = tmp->next;
-            tmp->next = NULL;
-            ft_clear(next);
-			return ;
-		}
-		*stack = tmp->next;
-		free(tmp);
-		tmp = *stack;
-	}
-	*stack = NULL;
+	clean_node = malloc(sizeof(t_global));
+	if (!clean_node)
+		return (ft_clear(stash));
+	clean_node->next = NULL;
+	last = *stash;
+	while (last->next)
+		last = last->next;
+	i = 0;
+	while (i < last->siz && last->content[i] != '\n')
+		i++;
+	if (i < last->siz && last->content[i] == '\n')
+		i++;
+	j = 0;
+	while (i < last->siz)
+		clean_node->content[j++] = last->content[i++];
+	clean_node->siz = j;
+	ft_clear(stash);
+	if (j > 0)
+		*stash = clean_node;
+	else
+		free(clean_node);
 }
 
 char	*get_next_line(int fd)
 {
-	static t_list	*stack;
-	char			*out;
+	static t_global	*stash[FD_MAX];
+	char			*line;
+	t_global		*node;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd >= FD_MAX)
 		return (NULL);
-    if (!stack)
-	    stack = ft_lstnewnode(fd);
-	if (!stack || !stack->status)
-			return (ft_clear(stack), stack = NULL, NULL);
-	if (!put_in_stack(fd, stack, 1) || !put_in_out(stack, &out))
-		return (ft_clear(stack), stack = NULL, NULL);
-	if (!out || !out[0])
-		return (free(out), ft_clear(stack), stack = NULL, NULL);
-	clean_stack(&stack);
-	return (out);
+	while (!is_eol(stash[fd]))
+	{
+		node = add_node(&stash[fd], fd);
+		if (!node && !stash[fd])
+			return (NULL);
+		if (!node)
+			break ;
+	}
+	if (!stash[fd])
+        return (NULL);
+	line = extract_line(stash[fd]);
+	if (!line)
+		return (ft_clear(&stash[fd]), NULL);
+	clean_stash(&stash[fd]);
+	return (line);
 }
+
 /*
 int	main(int ac, char *av[])
 {
-	int	fd = open(av[1], O_RDONLY);
-	char *line;
+	int		fd;
+	char	*line;
 
+	fd = open(av[1], O_RDONLY);
 	(void) ac;
 	line = get_next_line(fd);
 	while (line) {
@@ -129,6 +128,7 @@ int	main(int ac, char *av[])
 		line = get_next_line(fd);
 	}
 	free(line);
+	close(fd);
 	return (0);
 }
 */

@@ -1,81 +1,59 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   get_next_line_utils.c                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/21 07:26:11 by blamotte          #+#    #+#             */
-/*   Updated: 2025/11/23 23:01:44 by blamotte         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "get_next_line.h"
 
-t_list	*ft_lstnewnode(int fd)
+int	line_size(t_global *lst)
 {
-	t_list	*new_content;
-	int		nb_bytes;
-
-	new_content = malloc(sizeof(t_list));
-	if (!new_content)
-		return (NULL);
-	new_content->status = 1;
-	nb_bytes = read(fd, new_content->content, BUFFER_SIZE);
-	if (nb_bytes < 0)
-		return (free(new_content), NULL);
-	if (nb_bytes == 0)
-		new_content->status = 0;
-	new_content->content[nb_bytes] = '\0';
-	new_content->next = NULL;
-	return (new_content);
-}
-
-int	end_of_line(t_list *current_buffer)
-{
+	int	total;
 	int	i;
 
-	if (!current_buffer || !current_buffer->status)
-		return (1);
-	i = 0;
-	while (current_buffer->content[i])
+	total = 0;
+	while (lst)
 	{
-		if (current_buffer->content[i] == '\n')
-			return (1);
-		i++;
+		i = 0;
+		while (i < lst->siz)
+		{
+			if (lst->content[i] == '\n')
+				return (total + 1);
+			total++;
+			i++;
+		}
+		lst = lst->next;
+	}
+	return (total);
+}
+
+int	is_eol(t_global *list)
+{
+	int			i;
+	t_global	*tmp;
+
+	tmp = list;
+	while (tmp)
+	{
+		i = 0;
+		while (i < tmp->siz)
+		{
+			if (tmp->content[i] == '\n')
+				return (1);
+			i++;
+		}
+		tmp = tmp->next;
 	}
 	return (0);
 }
 
-void	*ft_clear(t_list *stack)
+void	ft_clear(t_global **stash)
 {
-	t_list		*next_liste;
+	t_global    *tmp;
+	t_global    *next;
 
-    while (stack)
+	if (!stash || !*stash)
+		return ;
+	tmp = *stash;
+	while (tmp)
 	{
-		next_liste = stack->next;
-		free(stack);
-		stack = next_liste;
+		next = tmp->next;
+		free(tmp);
+		tmp = next;
 	}
-	return (NULL);
+	*stash = NULL;
 }
-
-int ft_lstsize(t_list *lst)
-{
-    int total = 0;
-    int i;
-
-    while (lst)
-    {
-        i = 0;
-        while (lst->content[i])
-        {
-            total++;
-            if (lst->content[i++] == '\n')
-                return total;
-        }
-        lst = lst->next;
-    }
-    return total;
-}
-
