@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: blamotte <blamotte@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/29 22:16:57 by blamotte          #+#    #+#             */
+/*   Updated: 2025/11/29 22:20:05 by blamotte         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
@@ -11,7 +23,7 @@
 # endif
 
 # ifndef FD_MAX
-#  define FD_MAX 10
+#  define FD_MAX 6
 # endif
 
 typedef struct s_global

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: blamotte <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/29 22:16:08 by blamotte          #+#    #+#             */
+/*   Updated: 2025/11/29 22:16:11 by blamotte         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line_bonus.h"
 
 t_global	*add_node(t_global **stash, int fd)
@@ -80,8 +92,7 @@ void	clean_stash(t_global **stash)
 	j = 0;
 	while (i < last->siz)
 		clean_node->content[j++] = last->content[i++];
-	clean_node->siz = j;
-	ft_clear(stash);
+	(1 && (clean_node->siz = j), (ft_clear(stash)));
 	if (j > 0)
 		*stash = clean_node;
 	else

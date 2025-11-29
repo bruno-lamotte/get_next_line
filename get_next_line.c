@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: blamotte <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/29 22:16:43 by blamotte          #+#    #+#             */
+/*   Updated: 2025/11/29 22:16:45 by blamotte         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 t_global	*add_node(t_global **stash, int fd)
@@ -70,7 +82,7 @@ void	clean_stash(t_global **stash)
 		return (ft_clear(stash));
 	clean_node->next = NULL;
 	last = *stash;
-	while (last->next)
+	while (last && last->next)
 		last = last->next;
 	i = 0;
 	while (i < last->siz && last->content[i] != '\n')
@@ -80,8 +92,7 @@ void	clean_stash(t_global **stash)
 	j = 0;
 	while (i < last->siz)
 		clean_node->content[j++] = last->content[i++];
-	clean_node->siz = j;
-	ft_clear(stash);
+	(1 && (clean_node->siz = j), (ft_clear(stash)));
 	if (j > 0)
 		*stash = clean_node;
 	else
@@ -105,14 +116,13 @@ char	*get_next_line(int fd)
 			break ;
 	}
 	if (!stash[fd])
-        return (NULL);
+		return (NULL);
 	line = extract_line(stash[fd]);
 	if (!line)
 		return (ft_clear(&stash[fd]), NULL);
 	clean_stash(&stash[fd]);
 	return (line);
 }
-
 /*
 int	main(int ac, char *av[])
 {
@@ -131,4 +141,4 @@ int	main(int ac, char *av[])
 	close(fd);
 	return (0);
 }
-*/
+	*/

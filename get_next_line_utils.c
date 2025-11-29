@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: blamotte <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/29 22:18:16 by blamotte          #+#    #+#             */
+/*   Updated: 2025/11/29 22:18:18 by blamotte         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 int	line_size(t_global *lst)
@@ -43,8 +55,8 @@ int	is_eol(t_global *list)
 
 void	ft_clear(t_global **stash)
 {
-	t_global    *tmp;
-	t_global    *next;
+	t_global	*tmp;
+	t_global	*next;
 
 	if (!stash || !*stash)
 		return ;
