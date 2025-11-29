@@ -11,7 +11,7 @@
 # endif
 
 # ifndef FD_MAX
-#  define FD_MAX 1024
+#  define FD_MAX 10
 # endif
 
 typedef struct s_global

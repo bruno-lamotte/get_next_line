@@ -7,7 +7,7 @@ t_global	*add_node(t_global **stash, int fd)
 
 	new_node = malloc(sizeof(t_global));
 	if (!new_node)
-		return (NULL);
+		return (ft_clear(stash), NULL);
 	new_node->siz = read(fd, new_node->content, BUFFER_SIZE);
 	new_node->next = NULL;
 	if (new_node->siz <= 0)
